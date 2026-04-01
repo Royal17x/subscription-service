@@ -102,7 +102,7 @@ func (h *Handler) TotalCost(w http.ResponseWriter, r *http.Request) {
 
 	dateFrom := r.URL.Query().Get("date_from")
 	dateTo := r.URL.Query().Get("date_to")
-	if dateFrom != "" || dateTo != "" {
+	if dateFrom == "" || dateTo == "" {
 		writeError(w, http.StatusBadRequest, "date_from and date_to are required")
 		return
 	}
