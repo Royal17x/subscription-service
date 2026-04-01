@@ -1,7 +1,6 @@
 package model
 
 import (
-	"errors"
 	"github.com/google/uuid"
 	"time"
 )
@@ -45,5 +44,3 @@ type TotalCostFilter struct {
 	DateFrom    time.Time
 	DateTo      time.Time
 }
-
-var ErrNotFound = errors.New("subscription not found")

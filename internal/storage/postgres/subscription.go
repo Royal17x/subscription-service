@@ -5,19 +5,20 @@ import (
 	"errors"
 	"fmt"
 	"github.com/Royal17x/subscription-service/internal/model"
+	"github.com/Royal17x/subscription-service/internal/repository"
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
 )
 
-type SubscriptionRepository struct {
+type subscriptionRepository struct {
 	pool *pgxpool.Pool
 }
 
-func NewSubscriptionRepository(pool *pgxpool.Pool) *SubscriptionRepository {
-	return &SubscriptionRepository{pool: pool}
+func NewSubscriptionRepository(pool *pgxpool.Pool) repository.SubscriptionRepository {
+	return &subscriptionRepository{pool: pool}
 }
 
-func (r *SubscriptionRepository) Create(ctx context.Context, sub *model.Subscription) (*model.Subscription, error) {
+func (r *subscriptionRepository) Create(ctx context.Context, sub *model.Subscription) (*model.Subscription, error) {
 	query := `
 		INSERT INTO subscriptions (service_name, price, user_id, start_date, end_date)
 		VALUES ($1, $2, $3, $4, $5)
@@ -33,7 +34,7 @@ func (r *SubscriptionRepository) Create(ctx context.Context, sub *model.Subscrip
 	return scanSubscription(row)
 }
 
-func (r *SubscriptionRepository) GetByID(ctx context.Context, id int64) (*model.Subscription, error) {
+func (r *subscriptionRepository) GetByID(ctx context.Context, id int64) (*model.Subscription, error) {
 	query := `
 		SELECT id, service_name, price, user_id, start_date, end_date, created_at
 		FROM subscriptions
@@ -50,7 +51,7 @@ func (r *SubscriptionRepository) GetByID(ctx context.Context, id int64) (*model.
 	return sub, nil
 }
 
-func (r *SubscriptionRepository) Update(ctx context.Context, sub *model.Subscription) (*model.Subscription, error) {
+func (r *subscriptionRepository) Update(ctx context.Context, sub *model.Subscription) (*model.Subscription, error) {
 	query := `
 		UPDATE subscriptions
 		SET service_name = $1, price = $2, user_id = $3, start_date = $4, end_date = $5
@@ -75,7 +76,7 @@ func (r *SubscriptionRepository) Update(ctx context.Context, sub *model.Subscrip
 	return updatedSub, nil
 }
 
-func (r *SubscriptionRepository) Delete(ctx context.Context, id int64) error {
+func (r *subscriptionRepository) Delete(ctx context.Context, id int64) error {
 	query := `
 		DELETE FROM subscriptions
 		WHERE id = $1`
@@ -90,7 +91,7 @@ func (r *SubscriptionRepository) Delete(ctx context.Context, id int64) error {
 	return nil
 }
 
-func (r *SubscriptionRepository) List(ctx context.Context, filter model.SubscriptionFilter) ([]*model.Subscription, error) {
+func (r *subscriptionRepository) List(ctx context.Context, filter model.SubscriptionFilter) ([]*model.Subscription, error) {
 	query := `
 		SELECT id, service_name, price, user_id, start_date, end_date, created_at
 		FROM subscriptions
@@ -115,7 +116,7 @@ func (r *SubscriptionRepository) List(ctx context.Context, filter model.Subscrip
 	return subs, rows.Err()
 }
 
-func (r *SubscriptionRepository) TotalCost(ctx context.Context, filter model.TotalCostFilter) (int64, error) {
+func (r *subscriptionRepository) TotalCost(ctx context.Context, filter model.TotalCostFilter) (int64, error) {
 	query := `
 		SELECT COALESCE(SUM(price),0)
 		FROM subscriptions
