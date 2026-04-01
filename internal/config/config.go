@@ -1,6 +1,9 @@
 package config
 
-import "github.com/spf13/viper"
+import (
+	"fmt"
+	"github.com/spf13/viper"
+)
 
 type Config struct {
 	App AppConfig
@@ -17,6 +20,10 @@ type DBConfig struct {
 	Password string
 	Name     string
 	SSLMode  string
+}
+
+func (d DBConfig) DSN() string {
+	return fmt.Sprintf("postgres://%s:%s@%s:%s/%s?sslmode=%s", d.User, d.Password, d.Host, d.Port, d.Name, d.SSLMode)
 }
 
 func LoadConfig() (*Config, error) {

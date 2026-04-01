@@ -1,0 +1,43 @@
+<component name="ProjectCodeStyleConfiguration">
+  <code_scheme name="Project" version="173">
+    <PostgresCodeStyleSettings version="7">
+      <option name="USE_GENERAL_STYLE" value="false" />
+      <option name="KEYWORD_CASE" value="2" />
+      <option name="IDENTIFIER_CASE" value="1" />
+      <option name="ALIAS_CASE" value="1" />
+      <option name="QUERY_SECTION_1ST_WORD_ALIGN" value="8" />
+      <option name="QUERY_EL_COMMA" value="2" />
+      <option name="SUBQUERY_OPENING" value="1" />
+      <option name="SUBQUERY_CONTENT" value="1" />
+      <option name="SUBQUERY_CLOSING" value="1" />
+      <option name="INSERT_INTO_NL" value="2" />
+      <option name="SET_ALIGN_EQUAL_SIGN" value="false" />
+      <option name="SELECT_EL_WRAP" value="3" />
+      <option name="SELECT_KEEP_N_ITEMS_IN_LINE" value="3" />
+      <option name="SELECT_USE_AS_WORD" value="1" />
+      <option name="SELECT_ALIGN_AS" value="false" />
+      <option name="FROM_WRAP_ON" value="true" />
+      <option name="FROM_PLACE_ON" value="10" />
+      <option name="TABLE_OPENING" value="4" />
+      <option name="TABLE_TYPES_ALIGN" value="false" />
+      <option name="TABLE_DEFAULTS_ALIGN" value="false" />
+      <option name="TABLE_NULLABILITIES_ALIGN" value="false" />
+      <option name="TABLE_ALTER_INSTRUCTION_WRAP" value="0" />
+      <option name="CONSTRAINT_WRAP_2" value="true" />
+      <option name="POST_OPT_WRAP_1" value="true" />
+      <option name="POST_OPT_INDENT" value="false" />
+      <option name="POST_OPT_ALIGN" value="false" />
+      <option name="VIEW_WRAP_AS" value="true" />
+      <option name="IMP_LOOP_LOOP_WRAP" value="false" />
+      <option name="IMP_LOOP_LOOP_INDENT" value="false" />
+      <option name="EXPR_CASE_WHEN_WRAP" value="false" />
+      <option name="EXPR_CASE_END" value="9" />
+    </PostgresCodeStyleSettings>
+    <codeStyleSettings language="PostgreSQL">
+      <option name="KEEP_LINE_BREAKS" value="false" />
+      <indentOptions>
+        <option name="TAB_SIZE" value="8" />
+      </indentOptions>
+    </codeStyleSettings>
+  </code_scheme>
+</component>
