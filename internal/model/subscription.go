@@ -1,6 +1,7 @@
 package model
 
 import (
+	"errors"
 	"github.com/google/uuid"
 	"time"
 )
@@ -32,3 +33,17 @@ type SubscriptionResponse struct {
 	EndDate     *string `json:"end_date,omitempty"`
 	CreatedAt   string  `json:"created_at"`
 }
+
+type SubscriptionFilter struct {
+	UserID      *string
+	ServiceName *string
+}
+
+type TotalCostFilter struct {
+	UserID      *string
+	ServiceName *string
+	DateFrom    time.Time
+	DateTo      time.Time
+}
+
+var ErrNotFound = errors.New("subscription not found")
