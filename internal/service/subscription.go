@@ -3,10 +3,11 @@ package service
 import (
 	"context"
 	"fmt"
+	"time"
+
 	"github.com/Royal17x/subscription-service/internal/model"
 	"github.com/Royal17x/subscription-service/internal/repository"
 	"github.com/google/uuid"
-	"time"
 )
 
 const dateTemplate = "01-2006"

@@ -3,19 +3,26 @@ package main
 import (
 	"context"
 	"errors"
-	"github.com/Royal17x/subscription-service/internal/config"
-	"github.com/Royal17x/subscription-service/internal/db"
-	"github.com/Royal17x/subscription-service/internal/handler"
-	"github.com/Royal17x/subscription-service/internal/service"
-	"github.com/Royal17x/subscription-service/internal/storage/postgres"
 	"log/slog"
 	"net/http"
 	"os"
 	"os/signal"
 	"syscall"
 	"time"
+
+	"github.com/Royal17x/subscription-service/internal/config"
+	"github.com/Royal17x/subscription-service/internal/db"
+	"github.com/Royal17x/subscription-service/internal/handler"
+	"github.com/Royal17x/subscription-service/internal/service"
+	"github.com/Royal17x/subscription-service/internal/storage/postgres"
 )
 
+//	@title			Subscription Service API
+//	@version		1.0
+//	@description	REST сервис для агрегации данных об онлайн подписках пользователей
+
+// @host		localhost:8080
+// @BasePath	/api/v1
 func main() {
 	log := slog.New(slog.NewJSONHandler(os.Stdout, nil))
 	cfg, err := config.LoadConfig()

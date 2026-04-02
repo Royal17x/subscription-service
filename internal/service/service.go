@@ -2,6 +2,7 @@ package service
 
 import (
 	"context"
+
 	"github.com/Royal17x/subscription-service/internal/model"
 )
 

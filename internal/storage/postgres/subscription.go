@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+
 	"github.com/Royal17x/subscription-service/internal/model"
 	"github.com/Royal17x/subscription-service/internal/repository"
 	"github.com/jackc/pgx/v5"

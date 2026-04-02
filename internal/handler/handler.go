@@ -3,13 +3,16 @@ package handler
 import (
 	"encoding/json"
 	"errors"
+	"log/slog"
+	"net/http"
+
+	_ "github.com/Royal17x/subscription-service/docs"
 	"github.com/Royal17x/subscription-service/internal/model"
 	"github.com/Royal17x/subscription-service/internal/service"
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
 	"github.com/go-playground/validator/v10"
-	"log/slog"
-	"net/http"
+	httpSwagger "github.com/swaggo/http-swagger"
 )
 
 type Handler struct {
@@ -31,6 +34,8 @@ func (h *Handler) Router() http.Handler {
 
 	r.Use(middleware.RequestID)
 	r.Use(middleware.Recoverer)
+
+	r.Get("/swagger/*", httpSwagger.Handler())
 
 	r.Route("/api/v1", func(r chi.Router) {
 		r.Route("/subscriptions", func(r chi.Router) {
