@@ -22,6 +22,11 @@ func NewSubscriptionRepository(pool *pgxpool.Pool) repository.SubscriptionReposi
 	return &subscriptionRepository{pool: pool}
 }
 
+// for test
+func newSubscriptionRepository(pool *pgxpool.Pool) *subscriptionRepository {
+	return &subscriptionRepository{pool: pool}
+}
+
 func (r *subscriptionRepository) Create(ctx context.Context, sub *model.Subscription) (*model.Subscription, error) {
 	query := `
 		INSERT INTO subscriptions (service_name, price, user_id, start_date, end_date)
@@ -186,12 +191,19 @@ func (r *subscriptionRepository) List(ctx context.Context, filter model.Subscrip
 
 func (r *subscriptionRepository) TotalCost(ctx context.Context, filter model.TotalCostFilter) (int64, error) {
 	query := `
-		SELECT COALESCE(SUM(price),0)
+		SELECT COALESCE(SUM(
+			price * (
+				(DATE_PART('year', LEAST(COALESCE(end_date, $4), $4)) -
+				 DATE_PART('year', GREATEST(start_date, $3))) * 12 +
+				DATE_PART('month', LEAST(COALESCE(end_date, $4), $4)) -
+				DATE_PART('month', GREATEST(start_date, $3)) + 1
+			)::integer
+		), 0)
 		FROM subscriptions
-		WHERE ($1::uuid is NULL OR user_id = $1)
-			AND ($2::varchar is NULL OR service_name = $2)
-			AND start_date <= $4
-			AND (end_date IS NULL OR end_date >= $3)`
+		WHERE ($1::uuid IS NULL OR user_id = $1::uuid)
+		  AND ($2::varchar IS NULL OR service_name = $2)
+		  AND start_date <= $4
+		  AND (end_date IS NULL OR end_date >= $3)`
 
 	var totalCost int64
 	err := r.pool.QueryRow(ctx, query,
