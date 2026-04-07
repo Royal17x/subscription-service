@@ -36,16 +36,25 @@ const docTemplate = `{
                         "description": "Фильтр по названию сервиса",
                         "name": "service_name",
                         "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Количество записей (по умолчанию 20, максимум 100)",
+                        "name": "limit",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Смещение",
+                        "name": "offset",
+                        "in": "query"
                     }
                 ],
                 "responses": {
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "type": "array",
-                            "items": {
-                                "$ref": "#/definitions/model.SubscriptionResponse"
-                            }
+                            "$ref": "#/definitions/model.SubscriptionListResponse"
                         }
                     },
                     "500": {
@@ -410,6 +419,26 @@ const docTemplate = `{
         }
     },
     "definitions": {
+        "model.SubscriptionListResponse": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/model.SubscriptionResponse"
+                    }
+                },
+                "limit": {
+                    "type": "integer"
+                },
+                "offset": {
+                    "type": "integer"
+                },
+                "total": {
+                    "type": "integer"
+                }
+            }
+        },
         "model.SubscriptionRequest": {
             "type": "object",
             "required": [

@@ -1,5 +1,18 @@
 basePath: /api/v1
 definitions:
+  model.SubscriptionListResponse:
+    properties:
+      data:
+        items:
+          $ref: '#/definitions/model.SubscriptionResponse'
+        type: array
+      limit:
+        type: integer
+      offset:
+        type: integer
+      total:
+        type: integer
+    type: object
   model.SubscriptionRequest:
     properties:
       end_date:
@@ -66,15 +79,21 @@ paths:
         in: query
         name: service_name
         type: string
+      - description: Количество записей (по умолчанию 20, максимум 100)
+        in: query
+        name: limit
+        type: integer
+      - description: Смещение
+        in: query
+        name: offset
+        type: integer
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            items:
-              $ref: '#/definitions/model.SubscriptionResponse'
-            type: array
+            $ref: '#/definitions/model.SubscriptionListResponse'
         "500":
           description: Internal Server Error
           schema:

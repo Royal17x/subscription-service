@@ -85,17 +85,28 @@ func (s *subscriptionService) Delete(ctx context.Context, id int64) error {
 	return s.repo.Delete(ctx, id)
 }
 
-func (s *subscriptionService) List(ctx context.Context, filter model.SubscriptionFilter) ([]*model.SubscriptionResponse, error) {
-	subs, err := s.repo.List(ctx, filter)
+func (s *subscriptionService) List(ctx context.Context, filter model.SubscriptionFilter) (*model.SubscriptionListResponse, error) {
+	switch {
+	case filter.Limit > 100:
+		filter.Limit = 100
+	case filter.Limit <= 0:
+		filter.Limit = 20
+	}
+	subs, total, err := s.repo.List(ctx, filter)
 	if err != nil {
 		return nil, fmt.Errorf("list subscriptions: %w", err)
 	}
 
-	result := make([]*model.SubscriptionResponse, 0, len(subs))
+	data := make([]*model.SubscriptionResponse, 0, len(subs))
 	for _, sub := range subs {
-		result = append(result, parseToResponse(sub))
+		data = append(data, parseToResponse(sub))
 	}
-	return result, nil
+	return &model.SubscriptionListResponse{
+		Data:   data,
+		Total:  total,
+		Limit:  filter.Limit,
+		Offset: filter.Offset,
+	}, nil
 }
 
 func (s *subscriptionService) TotalCost(ctx context.Context, filter model.TotalCostFilter) (int64, error) {

@@ -146,7 +146,9 @@ func (h *Handler) PartialUpdate(w http.ResponseWriter, r *http.Request) {
 // @Produce	json
 // @Param		user_id			query		string	false	"Фильтр по user ID"
 // @Param		service_name	query		string	false	"Фильтр по названию сервиса"
-// @Success	200				{array}		model.SubscriptionResponse
+// @Param		limit			query		int		false	"Количество записей (по умолчанию 20, максимум 100)"
+// @Param		offset			query		int		false	"Смещение"
+// @Success	200				{object}	model.SubscriptionListResponse
 // @Failure	500				{object}	map[string]string
 // @Router		/subscriptions [get]
 func (h *Handler) List(w http.ResponseWriter, r *http.Request) {
@@ -157,6 +159,22 @@ func (h *Handler) List(w http.ResponseWriter, r *http.Request) {
 	}
 	if serviceName := r.URL.Query().Get("service_name"); serviceName != "" {
 		filter.ServiceName = &serviceName
+	}
+	if limitStr := r.URL.Query().Get("limit"); limitStr != "" {
+		limit, err := strconv.Atoi(limitStr)
+		if err != nil || limit < 0 {
+			writeError(w, http.StatusBadRequest, "invalid limit")
+			return
+		}
+		filter.Limit = limit
+	}
+	if offsetStr := r.URL.Query().Get("offset"); offsetStr != "" {
+		offset, err := strconv.Atoi(offsetStr)
+		if err != nil || offset < 0 {
+			writeError(w, http.StatusBadRequest, "invalid offset")
+			return
+		}
+		filter.Offset = offset
 	}
 
 	resp, err := h.service.List(r.Context(), filter)

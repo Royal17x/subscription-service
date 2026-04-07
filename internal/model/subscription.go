@@ -24,6 +24,14 @@ type SubscriptionRequest struct {
 	EndDate     *string `json:"end_date"`
 }
 
+type SubscriptionUpdateRequest struct {
+	ServiceName *string `json:"service_name"`
+	Price       *int    `json:"price"        validate:"omitempty,gt=0"`
+	UserID      *string `json:"user_id"      validate:"omitempty,uuid"`
+	StartDate   *string `json:"start_date"`
+	EndDate     *string `json:"end_date"`
+}
+
 type SubscriptionResponse struct {
 	ID          int64   `json:"id"`
 	ServiceName string  `json:"service_name"`
@@ -34,17 +42,18 @@ type SubscriptionResponse struct {
 	CreatedAt   string  `json:"created_at"`
 }
 
-type SubscriptionUpdateRequest struct {
-	ServiceName *string `json:"service_name"`
-	Price       *int    `json:"price"        validate:"omitempty,gt=0"`
-	UserID      *string `json:"user_id"      validate:"omitempty,uuid"`
-	StartDate   *string `json:"start_date"`
-	EndDate     *string `json:"end_date"`
+type SubscriptionListResponse struct {
+	Data   []*SubscriptionResponse `json:"data"`
+	Total  int64                   `json:"total"`
+	Limit  int                     `json:"limit"`
+	Offset int                     `json:"offset"`
 }
 
 type SubscriptionFilter struct {
 	UserID      *string
 	ServiceName *string
+	Limit       int
+	Offset      int
 }
 
 type TotalCostFilter struct {

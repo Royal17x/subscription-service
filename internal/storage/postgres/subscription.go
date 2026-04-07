@@ -146,17 +146,30 @@ func (r *subscriptionRepository) Delete(ctx context.Context, id int64) error {
 	return nil
 }
 
-func (r *subscriptionRepository) List(ctx context.Context, filter model.SubscriptionFilter) ([]*model.Subscription, error) {
+func (r *subscriptionRepository) List(ctx context.Context, filter model.SubscriptionFilter) ([]*model.Subscription, int64, error) {
+	countQuery := `
+		SELECT COUNT(*)
+		FROM subscriptions
+		WHERE ($1::uuid IS NULL or user_id = $1::uuid)
+			AND ($2::varchar IS NULL or service_name = $2)`
+
+	var total int64
+	err := r.pool.QueryRow(ctx, countQuery, filter.UserID, filter.ServiceName).Scan(&total)
+	if err != nil {
+		return nil, 0, fmt.Errorf("count subscriptions: %w", err)
+	}
+
 	query := `
 		SELECT id, service_name, price, user_id, start_date, end_date, created_at
 		FROM subscriptions
 		WHERE ($1::uuid IS NULL OR user_id = $1)
 			AND ($2::varchar IS NULL OR service_name = $2)
-		ORDER BY created_at DESC`
+		ORDER BY created_at DESC
+		LIMIT $3 OFFSET $4`
 
-	rows, err := r.pool.Query(ctx, query, filter.UserID, filter.ServiceName)
+	rows, err := r.pool.Query(ctx, query, filter.UserID, filter.ServiceName, filter.Limit, filter.Offset)
 	if err != nil {
-		return nil, fmt.Errorf("list subscriptions: %w", err)
+		return nil, 0, fmt.Errorf("list subscriptions: %w", err)
 	}
 	defer rows.Close()
 
@@ -164,11 +177,11 @@ func (r *subscriptionRepository) List(ctx context.Context, filter model.Subscrip
 	for rows.Next() {
 		sub, err := scanSubscription(rows)
 		if err != nil {
-			return nil, fmt.Errorf("list subscriptions: %w", err)
+			return nil, 0, fmt.Errorf("list subscriptions: %w", err)
 		}
 		subs = append(subs, sub)
 	}
-	return subs, rows.Err()
+	return subs, total, rows.Err()
 }
 
 func (r *subscriptionRepository) TotalCost(ctx context.Context, filter model.TotalCostFilter) (int64, error) {
