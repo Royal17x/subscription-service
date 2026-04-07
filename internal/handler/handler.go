@@ -44,6 +44,7 @@ func (h *Handler) Router() http.Handler {
 			r.Get("/total-cost", h.TotalCost)
 			r.Get("/{id}", h.GetByID)
 			r.Put("/{id}", h.Update)
+			r.Patch("/{id}", h.PartialUpdate)
 			r.Delete("/{id}", h.Delete)
 		})
 	})

@@ -34,6 +34,14 @@ type SubscriptionResponse struct {
 	CreatedAt   string  `json:"created_at"`
 }
 
+type SubscriptionUpdateRequest struct {
+	ServiceName *string `json:"service_name"`
+	Price       *int    `json:"price"        validate:"omitempty,gt=0"`
+	UserID      *string `json:"user_id"      validate:"omitempty,uuid"`
+	StartDate   *string `json:"start_date"`
+	EndDate     *string `json:"end_date"`
+}
+
 type SubscriptionFilter struct {
 	UserID      *string
 	ServiceName *string

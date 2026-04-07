@@ -4,6 +4,9 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"time"
+
+	"github.com/Royal17x/subscription-service/internal/service"
 
 	"github.com/Royal17x/subscription-service/internal/model"
 	"github.com/Royal17x/subscription-service/internal/repository"
@@ -75,6 +78,57 @@ func (r *subscriptionRepository) Update(ctx context.Context, sub *model.Subscrip
 		return nil, err
 	}
 	return updatedSub, nil
+}
+
+func (r *subscriptionRepository) PartialUpdate(ctx context.Context, id int64, req *model.SubscriptionUpdateRequest) (*model.Subscription, error) {
+	query := `
+		UPDATE subscriptions SET
+			service_name = COALESCE($1, service_name),
+			price        = COALESCE($2, price),
+			user_id      = COALESCE($3::uuid, user_id),
+			start_date   = COALESCE($4::date, start_date),
+			end_date     = COALESCE($5::date, end_date)
+		WHERE id = $6
+		RETURNING id, service_name, price, user_id, start_date, end_date, created_at`
+
+	var userID *string
+	if req.UserID != nil {
+		userID = req.UserID
+	}
+
+	var startDate, endDate *string
+	if req.StartDate != nil {
+		formattedDate, err := formatDateForDB(*req.StartDate)
+		if err != nil {
+			return nil, fmt.Errorf("invalid start_date: %w", err)
+		}
+		startDate = &formattedDate
+	}
+	if req.EndDate != nil {
+		formattedDate, err := formatDateForDB(*req.EndDate)
+		if err != nil {
+			return nil, fmt.Errorf("invalid end_date: %w", err)
+		}
+		endDate = &formattedDate
+	}
+
+	row := r.pool.QueryRow(ctx, query,
+		req.ServiceName,
+		req.Price,
+		userID,
+		startDate,
+		endDate,
+		id,
+	)
+
+	result, err := scanSubscription(row)
+	if err != nil {
+		if errors.Is(err, pgx.ErrNoRows) {
+			return nil, model.ErrNotFound
+		}
+		return nil, err
+	}
+	return result, nil
 }
 
 func (r *subscriptionRepository) Delete(ctx context.Context, id int64) error {
@@ -158,4 +212,12 @@ func scanSubscription(s scanner) (*model.Subscription, error) {
 		return nil, err
 	}
 	return &sub, nil
+}
+
+func formatDateForDB(s string) (string, error) {
+	t, err := time.Parse(service.DateTemplate, s)
+	if err != nil {
+		return "", fmt.Errorf("expected MM-YYYY, got %q", s)
+	}
+	return t.Format("2006-01-02"), nil
 }

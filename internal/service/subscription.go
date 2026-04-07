@@ -10,7 +10,7 @@ import (
 	"github.com/google/uuid"
 )
 
-const dateTemplate = "01-2006"
+const DateTemplate = "01-2006"
 
 type subscriptionService struct {
 	repo repository.SubscriptionRepository
@@ -51,6 +51,32 @@ func (s *subscriptionService) Update(ctx context.Context, id int64, req *model.S
 	updated, err := s.repo.Update(ctx, sub)
 	if err != nil {
 		return nil, fmt.Errorf("update subscription: %w", err)
+	}
+	return parseToResponse(updated), nil
+}
+
+func (s *subscriptionService) PartialUpdate(ctx context.Context, id int64, req *model.SubscriptionUpdateRequest) (*model.SubscriptionResponse, error) {
+	if req.StartDate != nil {
+		if _, err := parseDate(*req.StartDate); err != nil {
+			return nil, fmt.Errorf("invalid start_date: %w", err)
+		}
+	}
+	if req.EndDate != nil {
+		if _, err := parseDate(*req.EndDate); err != nil {
+			return nil, fmt.Errorf("invalid end_date: %w", err)
+		}
+	}
+	if req.StartDate != nil && req.EndDate != nil {
+		start, _ := parseDate(*req.StartDate)
+		end, _ := parseDate(*req.EndDate)
+		if !end.After(start) {
+			return nil, model.ErrInvalidDateRange
+		}
+	}
+
+	updated, err := s.repo.PartialUpdate(ctx, id, req)
+	if err != nil {
+		return nil, fmt.Errorf("partial update subscription: %w", err)
 	}
 	return parseToResponse(updated), nil
 }
@@ -117,19 +143,19 @@ func parseToResponse(sub *model.Subscription) *model.SubscriptionResponse {
 		ServiceName: sub.ServiceName,
 		Price:       sub.Price,
 		UserID:      sub.UserID.String(),
-		StartDate:   sub.StartDate.Format(dateTemplate),
+		StartDate:   sub.StartDate.Format(DateTemplate),
 		CreatedAt:   sub.CreatedAt.Format(time.RFC3339),
 	}
 
 	if sub.EndDate != nil {
-		formatted := sub.EndDate.Format(dateTemplate)
+		formatted := sub.EndDate.Format(DateTemplate)
 		resp.EndDate = &formatted
 	}
 	return resp
 }
 
 func parseDate(date string) (time.Time, error) {
-	t, err := time.Parse(dateTemplate, date)
+	t, err := time.Parse(DateTemplate, date)
 	if err != nil {
 		return time.Time{}, fmt.Errorf("expected format MM-YYYY, got %q", date)
 	}

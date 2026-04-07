@@ -102,6 +102,45 @@ func (h *Handler) Update(w http.ResponseWriter, r *http.Request) {
 	writeJson(w, http.StatusOK, resp)
 }
 
+// @Summary	Частично обновить подписку
+// @Tags		subscriptions
+// @Accept		json
+// @Produce	json
+// @Param		id		path		int								true	"ID подписки"
+// @Param		request	body		model.SubscriptionUpdateRequest	true	"Поля для обновления"
+// @Success	200		{object}	model.SubscriptionResponse
+// @Failure	400		{object}	map[string]string
+// @Failure	404		{object}	map[string]string
+// @Failure	500		{object}	map[string]string
+// @Router		/subscriptions/{id} [patch]
+func (h *Handler) PartialUpdate(w http.ResponseWriter, r *http.Request) {
+	id, err := parseID(r)
+	if err != nil {
+		writeError(w, http.StatusBadRequest, "invalid id")
+		return
+	}
+
+	var req model.SubscriptionUpdateRequest
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		writeError(w, http.StatusBadRequest, "invalid request body")
+		return
+	}
+
+	if err := h.validate.Struct(&req); err != nil {
+		writeError(w, http.StatusBadRequest, err.Error())
+		return
+	}
+
+	resp, err := h.service.PartialUpdate(r.Context(), id, &req)
+	if err != nil {
+		h.log.Error("partial update subscription", "id", id, "error", err)
+		writeError(w, errorToStatus(err), err.Error())
+		return
+	}
+
+	writeJson(w, http.StatusOK, resp)
+}
+
 // @Summary	Список подписок
 // @Tags		subscriptions
 // @Produce	json
